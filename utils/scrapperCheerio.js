@@ -124,55 +124,75 @@ async function getDataMes(url = "https://www.balotas.com/j2009.html") {
   const pageContent = await axios.get(url);
   const $ = cheerio.load(pageContent.data);
   let regex = /([0-9][0-9][0-9][0-9])/g;
+  let mesActual = "";
   let listData = [];
   let data = $("center center table tbody tr td p")
     .map((_, el) => {
       el = $(el);
       let mes = $(el).find("p b font font[color=#008000]").text();
-      // console.log(mes, $(el).html());
+      mesActual = mes;
       let scrapedData = [];
       $(el)
         .find("tbody > tr")
-        .each((index, element) => {
+        .each(function (index, element) {
           // console.log(index, element);
 
           if (index === 0 || index === 1) return true;
           const tds = $(element).find("td");
           const ths = $(element).find("th");
-          let serieFolio = $(ths[0]).find("font div").remove().text();
+          let serieFolio1 = $(ths[0]).find("font div").remove().text();
+          let serieFolio2 = $(ths[4]).find("font div").remove().text();
           let dia = $(ths[0])
             .find("font div")
             .text()
             .split(/[0-9]+/g);
-
+          console.log(mes, dia, serieFolio1);
           let domingo = {
+            ...splitSerieFolio(serieFolio1),
             primero: $(tds[0]).text(),
             segundo: $(tds[1]).text(),
             tercero: $(tds[2]).text(),
           };
 
           let miercoles = {
+            ...splitSerieFolio(serieFolio2),
             primero: $(tds[3]).text(),
             segundo: $(tds[4]).text(),
             tercero: $(tds[5]).text(),
           };
 
-          const tableRow = { domingo, miercoles };
+          const tableRow = { mes: mesActual, domingo, miercoles };
           scrapedData.push(tableRow);
         });
 
-      listData.push({ data: scrapedData });
+      listData.push(scrapedData);
 
-      console.log(listData);
+      //  console.log("Impresion de mes ",mesActual);
       return { mes, scrapedData };
     })
     .get();
 
-  console.log(listData[0]);
+  fs.writeFileSync(
+    path.join(__dirname, "../files/datosLoteria.json"),
+    JSON.stringify(listData)
+  );
+  // console.log(listData);
 }
 
-function splitSerieFolio() {}
+function splitSerieFolio(str) {
+  let obj = {
+    serie: "",
+    folio: "",
+  };
+  if (str) {
+    let arr = str.split("-");
+    
+    obj.serie = arr[0].split(/[0-9]*/g)[0];
+    obj.folio = arr[1].split(/[0-9]*/g)[0];
+  }
 
+  return obj;
+}
 function buscarDatos() {}
 
 getDataMes();
