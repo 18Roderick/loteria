@@ -5,15 +5,11 @@ import { chromium, devices } from '@playwright/test';
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('http://www.lnb.gob.pa/numerosjugados.php');
-
-  const table = await page.$$('tr[bgcolor]');
-
-  for (const sorteo of table) {
-    const title = await sorteo.$eval('.style1', (el) => el.textContent);
-    console.log(await sorteo.textContent());
-  }
-
+  await page.goto('http://www.lnb.gob.pa/index.php/consulte/numeros-jugados');
+  const text = await page.evaluate(
+    () => document.querySelector('#wob_tm').textContent,
+  );
+  console.log(text);
   // await page.screenshot({ path: `example.png` });
   await browser.close();
 })();
