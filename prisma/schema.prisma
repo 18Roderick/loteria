@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs https//pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Urls {
+  id  String @id @default(auto()) @map("_id") @db.ObjectId
+  url String
+}
+
+model Sorteos {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  Sorteo        String
+  Fecha         DateTime
+  PrimerPremio  Int
+  Letras        String
+  Serie         String
+  Folio         String
+  SegundoPremio Int
+  TercerPremio  Int
+}
