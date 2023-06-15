@@ -6,17 +6,17 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Urls {
-  id  String @id @default(auto()) @map("_id") @db.ObjectId
+  id  String @id @default(cuid())
   url String
 }
 
 model Sorteos {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String   @id @default(cuid())
   Sorteo        String
   Fecha         DateTime
   PrimerPremio  Int

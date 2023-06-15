@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { URL } from 'url';
 import * as fs from 'node:fs';
 
@@ -6,7 +7,7 @@ import { DateTime } from 'luxon';
 
 interface Sorteo {
   Sorteo?: string;
-  Fecha?: Date | string | number;
+  Fecha?: Date;
   Letras?: string;
   Serie?: string;
   Folio?: string;
@@ -14,6 +15,7 @@ interface Sorteo {
   SegundoPremio?: number;
   TercerPremio?: number;
 }
+
 interface KeyType {
   [key: string]: string;
 }
@@ -48,9 +50,9 @@ function saveFile(fileName: string, data: unknown) {
   fs.writeFileSync(fileName, JSON.stringify(data));
 }
 
+const prisma = new PrismaClient();
 async function main() {
   const data: Array<Sorteo> = [];
-
   console.log('Abriendo Navegador');
   const browser = await chromium.launch();
   const context = await browser.newContext();
@@ -60,8 +62,13 @@ async function main() {
     data.push(...(await searchData(url)));
   }
 
-  console.log('Guardando Archivo');
-  saveFile('sorteos.json', data);
+  // saveFile('sorteos.json', data);
+  if (data.length) {
+    console.log('Guardando Archivo');
+    await prisma.sorteos.createMany({
+      data: data as Prisma.SorteosCreateManyInput[],
+    });
+  }
 
   if (errors.length) {
     console.log('Proceso Terminado con errores');
@@ -129,6 +136,6 @@ async function main() {
   //throw new Error('Culminado ');
 }
 
-//main();
+main();
 // import * as sorteos from '../files/sorteos.json';
 // console.log(sorteos[0]);
