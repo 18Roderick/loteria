@@ -25,6 +25,14 @@ export class LoteriaController {
     return this.loteriaService.findAll();
   }
 
+  @Get('execute')
+  async ExecuteScrapper() {
+    await this.loteriaService.executeSrapper();
+    return {
+      ok: true,
+    };
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.loteriaService.findOne(+id);

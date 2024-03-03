@@ -1,17 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaServices } from 'src/databases/prisma.services';
+import { PrismaServices as PrismaService } from '../databases/prisma.services';
 import { CreateLoteriaDto } from './dto/create-loteria.dto';
 import { UpdateLoteriaDto } from './dto/update-loteria.dto';
+import { ScrapAllSorteos } from '../scrapper';
 
 @Injectable()
 export class LoteriaService {
-  constructor(private prismaServices: PrismaServices) {}
+  constructor(private prismaServices: PrismaService) {}
   create(createLoteriaDto: CreateLoteriaDto) {
     return 'This action adds a new loteria';
   }
 
   findAll() {
-    return this.prismaServices.sorteos.findMany();
+    return this.prismaServices.sorteos.findMany({
+      orderBy: [
+        {
+          Fecha: 'desc',
+        },
+      ],
+    });
   }
 
   findOne(id: number) {
@@ -24,5 +31,9 @@ export class LoteriaService {
 
   remove(id: number) {
     return `This action removes a #${id} loteria`;
+  }
+
+  executeSrapper() {
+    return ScrapAllSorteos();
   }
 }
